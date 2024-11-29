@@ -1,0 +1,45 @@
+<h1>Show Details</h1>
+<dl>
+  <dt>Image</dt>
+  <dd><img src="<%= @the_photo.image%>" style="width:300px;"></dd>
+
+  <dt>Caption</dt>
+  <dd><%=@the_photo.caption%></dd>
+
+  <dt>Owner</dt>
+  <dd><%=@the_photo.poster.username%></dd>
+
+  <dt>Posted</dt>
+  <dd><%=@the_photo.created_at%></dd>
+
+  <dt>Edit photo</dt>
+  <dd>
+    <form action="/edit_photo/<%=@the_photo.id%>">
+      <label for="url_box">Name</label>
+      <input type="text" id="url_box" name="url" value=<%=@the_photo.image%>>
+
+      <label for="caption_box">Name</label>
+      <input type="text" id="caption_box" name="caption" value=<%=@the_photo.caption%>>
+
+      <button>Update photo</button>
+  </dd>
+
+  <dt>Delete Photo</dt>
+  <dd><a href="/delete_photo/<%=@the_photo.id%>">Delete this photo</a></dd>
+</dl>
+
+<h1>Comments</h1>
+
+<table>
+  <tr>
+    <th>Commenter</th>
+    <th>Comment</th>
+    <th>Posted</th>
+  </tr>
+  <%comments=@the_photo.comments%>
+  <%comments.each do |a_comment|%>
+  <tr>
+    <
+  </tr>
+
+</table>

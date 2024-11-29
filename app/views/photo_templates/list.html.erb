@@ -1,0 +1,33 @@
+<h1>List of photos</h1>
+
+<form action="/add_photo" method="post">
+  <label for="url_box">Name</label>
+  <input type="text" id="url_box" name="url" placeholder="Enter a URL for the image">
+
+  <label for="caption_box">Name</label>
+  <input type="text" id="caption_box" name="caption" placeholder="Enter a caption for the photo">
+
+  <label for="owner_id_box">Name</label>
+  <input type="text" id="owner_id_box" name="owner_id" placeholder="Enter an ID of a user">
+
+  <button>Add photo</button>
+</form>
+
+<table border=1>
+  <tr>
+    <th>Image</th>
+    <th>Owner</th>
+    <th>Caption</th>
+    <th>Posted</th>
+    <th></th>
+  </tr>  
+  <%@photos_list.each do |a_picture|%>
+  <tr>
+    <td><img src="<%= a_picture.image%>" style="width:300px;"></td>
+    <td><%=User.where({:id=>a_picture.owner_id}).at(0).username%></td>
+    <td><%=a_picture.caption%></td>
+    <td><%=a_picture.created_at%></td>
+    <td><a href="/photos/<%=a_picture.id%>">Show detail</a></td>
+  </tr>
+<%end%>
+</table>
