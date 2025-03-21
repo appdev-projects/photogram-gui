@@ -1,0 +1,83 @@
+<!-- app/views/photos/index.html.erb -->
+
+<h1>List of photos</h1>
+
+<!-- Display errors if creating a photo fails (e.g., validations) -->
+<% if @photo.errors.any? %>
+  <div style="color: red;">
+    <h2><%= pluralize(@photo.errors.count, "error") %> prevented this photo from being saved:</h2>
+    <ul>
+      <% @photo.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<!-- Horizontal form at the top to add a new photo -->
+<%= form_with(model: @photo, url: photos_path, local: true) do |f| %>
+  <div>
+    <%= f.label :image, "Image", for: "photo_image" %><br>
+    <%= f.text_field :image, id: "photo_image", placeholder: "Enter a URL for the image..." %>
+  </div>
+  <div>
+    <%= f.label :caption, "Caption", for: "photo_caption" %><br>
+    <%= f.text_area :caption, id: "photo_caption", placeholder: "Enter a caption for the photo..." %>
+  </div>
+  <div>
+    <%= f.label :owner_id, "Owner ID", for: "photo_owner_id" %><br>
+    <%= f.text_field :owner_id, id: "photo_owner_id", placeholder: "Enter an ID of a User" %>
+  </div>
+  <div>
+    <%= button_tag "Add photo", type: "submit" %>
+  </div>
+<% end %>
+
+<!-- Table of existing photos -->
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Caption</th>
+      <th>Owner</th>
+      <th>Posted</th>
+      <th></th> <!-- "Show details" link -->
+    </tr>
+  </thead>
+  <tbody>
+    <% @photos.each do |photo| %>
+      <tr>
+        <!-- Image column -->
+        <td>
+          <% if photo.image.present? %>
+            <% display_url = photo.image.to_s %>
+            <% unless display_url =~ /\Ahttps?:\/\//i %>
+              <% display_url = "http://" + display_url %>
+            <% end %>
+            <%= image_tag(display_url, skip_pipeline: true, width: 100, alt: "Photo") %>
+          <% else %>
+            (No image)
+          <% end %>
+        </td>
+        <!-- Caption column -->
+        <td><%= photo.caption %></td>
+        <!-- Owner column -->
+        <td>
+          <% if photo.respond_to?(:poster) && photo.poster.present? %>
+            <%= photo.poster.username %>
+          <% else %>
+            <%= photo.owner_id %>
+          <% end %>
+        </td>
+        <!-- Posted column -->
+        <td>
+          <%= photo.created_at.strftime("%Y-%m-%d %H:%M:%S UTC") %>
+        </td>
+        <!-- "Show details" link -->
+        <td>
+          <%= link_to "Show details", photo_path(photo) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

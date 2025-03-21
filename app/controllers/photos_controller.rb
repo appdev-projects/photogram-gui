@@ -1,71 +1,53 @@
 # app/controllers/photos_controller.rb
 class PhotosController < ApplicationController
   def index
-    # Loads all Photos into @photos for display in index view
     @photos = Photo.all
+    @photo = Photo.new  # For the inline “Add Photo” form on index
   end
 
   def show
-    # Loads one Photo for the show page
     @photo = Photo.find(params[:id])
-    # Example: you can access custom methods in your view as well:
-    #   @photo.poster
-    #   @photo.comments
-    #   @photo.likes
-    #   @photo.fans
-    #   @photo.fan_list
   end
 
   def new
-    # Prepares a blank Photo for the new photo form
     @photo = Photo.new
   end
 
   def create
-    # Instantiates a new Photo with permitted parameters
-    # Make sure :owner_id, :caption, and :image line up with your form fields
     @photo = Photo.new(photo_params)
-
     if @photo.save
-      redirect_to("/photos/#{@photo.id}")  # or photo_path(@photo)
+      # Redirect to the photo's show page (i.e., /photos/[PHOTO ID])
+      redirect_to photo_path(@photo)
     else
-      # If validations fail (e.g., poster is missing),
-      # re-render the form so user can correct the data
-      render("new")
+      @photos = Photo.all
+      render :index
     end
   end
 
-  def edit
-    # Loads the Photo to edit
-    @photo = Photo.find(params[:id])
-  end
-
   def update
-    # Loads the existing Photo from the DB
     @photo = Photo.find(params[:id])
+    # Preserve the existing owner_id if it's not provided in the update form
+    update_params = photo_params
+    update_params[:owner_id] ||= @photo.owner_id
 
-    # Updates attributes with permitted parameters
-    if @photo.update(photo_params)
-      redirect_to("/photos/#{@photo.id}")  # or photo_path(@photo)
+    if @photo.update(update_params)
+      redirect_to photo_path(@photo)
     else
-      render("edit")
+      Rails.logger.info "Update failed: #{@photo.errors.full_messages.join(', ')}"
+      render :show
     end
   end
 
   def destroy
-    # Finds and deletes the specified Photo
     @photo = Photo.find(params[:id])
     @photo.destroy
-
-    redirect_to("/photos")  # or photos_path
+    redirect_to photos_path
   end
 
   private
 
-  # Strong parameters to help secure which attributes are allowed
   def photo_params
-    # Make sure the keys here (e.g. :owner_id, :caption, :image)
-    # match the form fields in your views.
+    # Permit :image, :caption, and :owner_id.
     params.require(:photo).permit(:image, :caption, :owner_id)
   end
 end

@@ -2,7 +2,6 @@
 
 <h1>User Profile</h1>
 
-<!-- Basic User Information -->
 <p>
   <strong>ID:</strong> <%= @user.id %>
 </p>
@@ -11,108 +10,44 @@
   <strong>Username:</strong> <%= @user.username %>
 </p>
 
-<!-- Photos the user owns (via the user.own_photos model method) -->
-<% if @user.respond_to?(:own_photos) %>
-  <h2>Photos owned by <%= @user.username %></h2>
-  <ul>
-    <% @user.own_photos.each do |photo| %>
-      <li>
-        <strong>Caption:</strong> <%= photo.caption %><br>
-        <% if photo.image.present? %>
-          <%= link_to(image_tag(photo.image, width: 100, alt: "User photo"), photo_path(photo)) %>
-        <% end %>
-        <br>
-        <%= link_to "View Photo", photo_path(photo) %>
-      </li>
-    <% end %>
-  </ul>
+<h2>Update User</h2>
+<%= form_with(model: @user, url: user_path(@user), method: :patch, local: true) do |f| %>
+  <div>
+    <%= f.label :username, "Username", for: "user_username" %><br>
+    <%= f.text_field :username, id: "user_username", placeholder: "Enter new username" %>
+  </div>
+  <div>
+    <%= button_tag "Update user", type: "submit" %>
+  </div>
 <% end %>
 
-<!-- Photos the user has liked (via the user.liked_photos model method) -->
-<% if @user.respond_to?(:liked_photos) %>
-  <h2>Photos liked by <%= @user.username %></h2>
-  <ul>
-    <% @user.liked_photos.each do |photo| %>
-      <li>
-        <strong>Caption:</strong> <%= photo.caption %><br>
-        <% if photo.image.present? %>
-          <%= link_to(image_tag(photo.image, width: 100, alt: "Liked photo"), photo_path(photo)) %>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-<% end %>
-
-<!-- OPTIONAL: Photos the user commented on (via the user.commented_photos method) -->
-<% if @user.respond_to?(:commented_photos) %>
-  <h2>Photos commented on by <%= @user.username %></h2>
-  <ul>
-    <% @user.commented_photos.each do |photo| %>
-      <li>
-        <strong>Caption:</strong> <%= photo.caption %><br>
-        <% if photo.image.present? %>
-          <%= link_to(image_tag(photo.image, width: 100, alt: "Commented photo"), photo_path(photo)) %>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-<% end %>
-
-<!-- OPTIONAL: Followers and Leaders (the user's followers & the people the user follows) -->
-<% if @user.respond_to?(:followers) && @user.respond_to?(:leaders) %>
-  <h2>Followers</h2>
-  <ul>
-    <% @user.followers.each do |follower| %>
-      <li><%= link_to follower.username, user_path(follower) %></li>
-    <% end %>
-  </ul>
-
-  <h2>Follows (Leaders)</h2>
-  <ul>
-    <% @user.leaders.each do |leader| %>
-      <li><%= link_to leader.username, user_path(leader) %></li>
-    <% end %>
-  </ul>
-<% end %>
-
-<!-- OPTIONAL: Feed (photos from the users this user follows) -->
-<% if @user.respond_to?(:feed) %>
-  <h2>Feed (Photos from the people <%= @user.username %> follows)</h2>
-  <ul>
-    <% @user.feed.each do |photo| %>
-      <li>
-        <strong>Caption:</strong> <%= photo.caption %><br>
-        <% if photo.image.present? %>
-          <%= link_to(image_tag(photo.image, width: 100, alt: "Feed photo"), photo_path(photo)) %>
-        <% end %>
-        <em>by <%= link_to photo.poster.username, user_path(photo.poster.id) if photo.poster.present? %></em>
-      </li>
-    <% end %>
-  </ul>
-<% end %>
-
-<!-- OPTIONAL: Discover (photos that the user's leaders have liked) -->
-<% if @user.respond_to?(:discover) %>
-  <h2>Discover</h2>
-  <p>This is a collection of photos liked by the people that <%= @user.username %> follows.</p>
-  <ul>
-    <% @user.discover.each do |photo| %>
-      <li>
-        <strong>Caption:</strong> <%= photo.caption %><br>
-        <% if photo.image.present? %>
-          <%= link_to(image_tag(photo.image, width: 100, alt: "Discovered photo"), photo_path(photo)) %>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-<% end %>
-
-<!-- Action Links for editing/deleting the user or going back -->
 <p>
-  <%= link_to "Edit this user", edit_user_path(@user) %> |
-  <%= link_to "Delete this user",
-              user_path(@user),
+  <%= link_to "Delete user", user_path(@user),
               method: :delete,
               data: { confirm: "Are you sure you want to delete this user?" } %> |
   <%= link_to "Back to all users", users_path %>
 </p>
+
+<!-- New Section: Display the photos posted by the user -->
+<h2>Photos posted by <%= @user.username %></h2>
+<% if @user.own_photos.any? %>
+  <ul>
+    <% @user.own_photos.each do |photo| %>
+      <li>
+        <% if photo.image.present? %>
+          <% display_url = photo.image.to_s %>
+          <% unless display_url =~ /\Ahttps?:\/\//i %>
+            <% display_url = "http://" + display_url %>
+          <% end %>
+          <%= image_tag(display_url, skip_pipeline: true, width: 100, alt: "Photo") %>
+        <% else %>
+          (No image)
+        <% end %>
+        <br>
+        <strong>Caption:</strong> <%= photo.caption %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No photos posted.</p>
+<% end %>

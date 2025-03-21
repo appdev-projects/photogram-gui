@@ -1,0 +1,13 @@
+<!-- app/views/users/edit.html.erb -->
+
+<h1>Edit User</h1>
+
+<!-- A simple form to update the user's attributes -->
+<%= form_with(model: @user, local: true) do |form| %>
+  <p>
+    <%= form.label :username %><br>
+    <%= form.text_field :username %>
+  </p>
+
+  <p><%= form.submit "Update user" %></p>
+<% end %>
