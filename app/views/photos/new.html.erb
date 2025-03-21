@@ -1,0 +1,37 @@
+<!-- app/views/photos/new.html.erb -->
+
+<h1>New Photo</h1>
+
+<!-- Display validation errors, if any -->
+<% if @photo.errors.any? %>
+  <div style="color: red;">
+    <h2><%= pluralize(@photo.errors.count, "error") %> prevented this photo from being saved:</h2>
+    <ul>
+      <% @photo.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with(model: @photo, local: true) do |f| %>
+  <p>
+    <%= f.label :image, "Image URL" %><br>
+    <%= f.text_field :image %>
+  </p>
+
+  <p>
+    <%= f.label :caption, "Caption" %><br>
+    <%= f.text_field :caption %>
+  </p>
+
+  <p>
+    <%= f.label :owner_id, "Owner ID" %><br>
+    <%= f.number_field :owner_id %>
+  </p>
+
+  <p><%= f.submit "Create Photo" %></p>
+<% end %>
+
+<!-- Link back to the photos index page -->
+<p><%= link_to "Back to Photos", photos_path %></p>

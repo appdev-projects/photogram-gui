@@ -1,0 +1,101 @@
+<!-- app/views/photos/show.html.erb -->
+
+<h1>Photo Details</h1>
+
+<!-- Navigation -->
+<p>
+  <%= link_to "Users", users_path %> |
+  <%= link_to "Photos", photos_path %>
+</p>
+
+<!-- Display any errors if update fails (e.g., validation errors) -->
+<% if @photo.errors.any? %>
+  <div style="color: red;">
+    <h2><%= pluralize(@photo.errors.count, "error") %> prevented this photo from being saved:</h2>
+    <ul>
+      <% @photo.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<!-- Show the current photo details -->
+<p>
+  <strong>Image:</strong><br>
+  <% if @photo.image.present? %>
+    <%= image_tag(@photo.image, skip_pipeline: true, width: 300, alt: "Photo") %>
+  <% else %>
+    No image URL provided.
+  <% end %>
+</p>
+
+<p>
+  <strong>Caption:</strong><br>
+  <%= @photo.caption %>
+</p>
+
+<p>
+  <strong>Posted by:</strong><br>
+  <%= @photo.poster.username if @photo.poster.present? %>
+</p>
+
+<!-- Comments Listing Section -->
+<h2>Comments</h2>
+<% if @photo.comments.any? %>
+  <ul>
+    <% @photo.comments.each do |comment| %>
+      <li>
+        <%# Display the commenter's username if available, otherwise "Unknown" %>
+        <% if comment.commenter.present? %>
+          <strong><%= comment.commenter.username %>:</strong>
+        <% else %>
+          <strong>Unknown:</strong>
+        <% end %>
+        <%= comment.body %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No comments yet.</p>
+<% end %>
+
+<!-- Inline form to update the photo's image and caption -->
+<h2>Edit This Photo</h2>
+<%= form_with(model: @photo, method: :patch, local: true) do |f| %>
+  <p>
+    <%= f.label :image, "Image URL", for: "photo_image" %><br>
+    <%= f.text_field :image, id: "photo_image", placeholder: "Enter new image URL" %>
+  </p>
+  <p>
+    <%= f.label :caption, "Caption", for: "photo_caption" %><br>
+    <%= f.text_area :caption, id: "photo_caption", placeholder: "Enter new caption" %>
+  </p>
+  <p>
+    <%= button_tag "Update photo", type: "submit" %>
+  </p>
+<% end %>
+
+<!-- Use button_to for a proper DELETE form without JS dependencies -->
+<p>
+  <%= button_to "Delete Photo", photo_path(@photo),
+                method: :delete,
+                data: { confirm: "Are you sure?" } %>
+</p>
+
+<!-- Add Comment Form -->
+<h2>Add a Comment</h2>
+<%= form_with(url: comments_path, local: true) do %>
+  <p>
+    <%= label_tag "comment_body", "Comment", for: "comment_body" %><br>
+    <%= text_area_tag "comment_body", nil, id: "comment_body", placeholder: "Write your comment..." %>
+  </p>
+  <p>
+    <%= label_tag "comment_author_id", "Author ID", for: "comment_author_id" %><br>
+    <%= text_field_tag "comment_author_id", nil, id: "comment_author_id", placeholder: "Enter your user ID" %>
+  </p>
+  <%= hidden_field_tag "comment_photo_id", @photo.id %>
+  <p>
+    <%= button_tag "Add comment", type: "submit" %>
+  </p>
+<% end %>

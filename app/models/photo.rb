@@ -13,59 +13,31 @@
 #
 
 class Photo < ApplicationRecord
-  validates(:poster, { :presence => true })
+  # Instead of validating the presence of the poster (which looks up a user by owner_id),
+  # we validate that an owner_id is provided.
+  validates :owner_id, presence: true
 
   def poster
-    my_owner_id = self.owner_id
-
-    matching_users = User.where({ :id => my_owner_id })
-
-    the_user = matching_users.at(0)
-
-    return the_user
+    # Return the User record corresponding to owner_id (or nil if none exists)
+    User.find_by(id: owner_id)
   end
 
   def comments
-    my_id = self.id
-
-    matching_comments = Comment.where({ :photo_id => self.id })
-
-    return matching_comments
+    Comment.where(photo_id: id)
   end
 
   def likes
-    my_id = self.id
-
-    matching_likes = Like.where({ :photo_id => self.id })
-
-    return matching_likes
+    Like.where(photo_id: id)
   end
 
   def fans
-    my_likes = self.likes
-    
-    array_of_user_ids = Array.new
-
-    my_likes.each do |a_like|
-      array_of_user_ids.push(a_like.fan_id)
-    end
-
-    matching_users = User.where({ :id => array_of_user_ids })
-
-    return matching_users
+    # Collect the fan_ids from likes and find the corresponding Users
+    user_ids = likes.pluck(:fan_id)
+    User.where(id: user_ids)
   end
 
   def fan_list
-    my_fans = self.fans
-
-    array_of_usernames = Array.new
-
-    my_fans.each do |a_user|
-      array_of_usernames.push(a_user.username)
-    end
-
-    formatted_usernames = array_of_usernames.to_sentence
-
-    return formatted_usernames
+    # Build a sentence of usernames from the fans list
+    fans.pluck(:username).to_sentence
   end
 end
