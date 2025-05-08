@@ -1,0 +1,33 @@
+<h1><%=@the_user.username%></h1>
+
+<dt>ID</dt>
+<dd><%=@the_user.id%></dd>
+
+<dt>Edit user<dt>
+<dd>
+  <form action= "/edit_user/<%=@the_user.username%>" method="post">
+    <label for "username_box">Username</label>
+    <input type="text" id="username_box" name="username" value=<%=@the_user.username%>>
+    <button>Update user</button>
+  </form>
+</dd>
+<h1>Own photos</h1>
+<table border=1>
+  <tr>
+    <th>Image</th>
+    <th>Owner</th>
+    <th>Caption</th>
+    <th>Posted</th>
+    <th></th>
+  </tr>  
+  <%pics=@the_user.own_photos%>
+  <%pics.each do |a_picture|%>
+  <tr>
+    <td><img src="<%= a_picture.image%>" style="width:300px;"></td>
+    <td><%=User.where({:id=>a_picture.owner_id}).at(0).username%></td>
+    <td><%=a_picture.caption%></td>
+    <td><%=a_picture.created_at%></td>
+    <td><a href="/photos/<%=a_picture.id%>">Show detail</a></td>
+  </tr>
+<%end%>
+</table>
